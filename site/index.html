@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HVOYA Concierge</title>
+<meta name="description" content="Цифровий консьєрж HVOYA apart hotel · restaurant · spa, Буковель">
+<meta name="theme-color" content="#2F3E46">
+<link rel="icon" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Кольори та стиль з брендбуку HVOYA (strategy_hvoya.pdf). Сторінка лише світла. */
+  :root {
+    --smell: #84A98C;
+    --eat: #52796F;
+    --listen: #356469;
+    --touch: #2F3E46;
+    --feel: #CAD2C5;
+    --white: #FFFFFF;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    /* Брендбук не називає шрифт; на вигляд це Helvetica Neue. Inter замінює її там, де її немає. */
+    font-family: "Helvetica Neue", Helvetica, Inter, Arial, sans-serif;
+    background: var(--white);
+    color: var(--touch);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; }
+  .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  @media (max-width: 480px) { .wrap { padding: 0 16px; } }
+  .num { font-style: italic; color: var(--eat); }
+  .label { font-size: 15px; color: var(--eat); }
+  /* img.ring сильніше за правила «.блок > *», тож кільця завжди лежать поверх, а не в потоці */
+  img.ring { position: absolute; pointer-events: none; }
+
+  /* Кнопки */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 50px; padding: 0 22px; border-radius: 12px;
+    font-weight: 500; border: 1px solid transparent; cursor: pointer;
+  }
+  .btn-listen { background: var(--listen); color: var(--white); }
+  .btn-touch { background: var(--touch); color: var(--white); }
+  .btn-feel { background: var(--feel); color: var(--touch); }
+  .btn-white { background: var(--white); color: var(--touch); }
+  .btn-outline { border-color: var(--touch); color: var(--touch); }
+  .btn-outline-light { border-color: var(--feel); color: var(--white); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Кольорові блоки за «відчуттями» */
+  .c-smell { background: var(--smell); color: var(--touch); }
+  .c-eat { background: var(--eat); color: var(--white); }
+  .c-listen { background: var(--listen); color: var(--white); }
+  .c-touch { background: var(--touch); color: var(--white); }
+  .c-feel { background: var(--feel); color: var(--touch); }
+
+  /* Шапка */
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: max(20px, env(safe-area-inset-top)); padding-bottom: 20px; }
+  .topbar img { width: 132px; height: auto; }
+  .lang { display: flex; gap: 4px; font-size: 15px; }
+  .lang button {
+    font: inherit; min-height: 44px; padding: 0 10px; border: 0; background: none;
+    color: var(--eat); cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] { color: var(--touch); font-weight: 600; }
+
+  /* Перший екран */
+  .hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr)); gap: 32px; align-items: center; padding-top: 24px; }
+  .hero-meta { display: flex; justify-content: space-between; margin-bottom: 28px; }
+  .hero h1 {
+    font-weight: 500; font-size: clamp(44px, 7vw, 84px); line-height: .95;
+    letter-spacing: -.02em; text-transform: uppercase; margin-bottom: 28px;
+  }
+  .hero p { font-size: 19px; margin-bottom: 32px; max-width: 470px; }
+
+  /* Фото в капсулі, як на сторінці «портрет цільової аудиторії» */
+  .capsules { position: relative; height: 480px; overflow: hidden; }
+  .capsule { position: absolute; border-radius: 999px; transform: rotate(-38deg); overflow: hidden; }
+  .capsule-back { left: 2%; top: 44%; width: 66%; height: 190px; background: var(--feel); }
+  .capsule-back .ring { width: 70%; left: 20%; top: -60%; opacity: .5; transform: rotate(38deg); }
+  .capsule-photo { left: 18%; top: 14%; width: 78%; height: 230px; background: var(--eat); }
+  .capsule-photo img { position: absolute; left: -15%; top: -70%; width: 130%; height: 240%; object-fit: cover; transform: rotate(38deg); }
+  @media (max-width: 480px) { .capsules { height: 380px; } .capsule-back { height: 150px; } .capsule-photo { height: 180px; } }
+
+  /* Заголовки розділів: (02) СЬОГОДНІ */
+  section.wrap { padding-top: 72px; }
+  .head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
+    border-top: 1px solid var(--feel); padding-top: 18px; margin-bottom: 20px;
+  }
+  .head > div { display: flex; align-items: baseline; gap: 16px; }
+  .head h2 { font-weight: 500; font-size: 30px; line-height: 1.1; text-transform: uppercase; }
+
+  /* Сьогодні */
+  .quick { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 12px; }
+  .tile {
+    position: relative; overflow: hidden; border-radius: 12px; padding: 22px 24px; min-height: 140px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .tile .ring { width: 180px; right: -50px; bottom: -70px; opacity: .35; }
+  .tile span { position: relative; font-size: 15px; }
+  .tile b { position: relative; font-size: 34px; font-weight: 500; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+
+  /* П'ять відчуттів */
+  .senses { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 12px; }
+  .sense { border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+  .sense > img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .sense-body { position: relative; overflow: hidden; padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .sense-body .ring { width: 200px; right: -70px; bottom: -90px; opacity: .3; }
+  .sense-body > * { position: relative; }
+  .sense small { font-size: 14px; }
+  .sense h3 { font-weight: 500; font-size: 22px; line-height: 1.1; text-transform: uppercase; }
+  .sense p { font-size: 15px; }
+  .sense .note { margin-top: auto; font-size: 14px; }
+  .sense a { min-height: 44px; display: inline-flex; align-items: center; font-weight: 500; }
+
+  /* Розклад і події */
+  .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 24px; align-items: stretch; }
+  .split .head { margin-bottom: 8px; }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--feel); }
+  .row b { font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .events {
+    position: relative; overflow: hidden; border-radius: 12px; padding: 32px; min-height: 420px;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 24px;
+  }
+  .events .ring { width: 440px; right: -120px; top: -60px; opacity: .22; }
+  .events > * { position: relative; }
+  .events-meta { display: flex; justify-content: space-between; font-size: 15px; color: var(--feel); }
+  .events h2 { font-weight: 500; font-size: 40px; line-height: 1; text-transform: uppercase; margin-bottom: 16px; }
+  .events p { font-size: 17px; color: var(--feel); margin-bottom: 24px; max-width: 420px; }
+
+  /* Відгук */
+  .review {
+    position: relative; overflow: hidden; border-radius: 12px; padding: 40px 32px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 24px; align-items: center;
+  }
+  .review .ring { width: 300px; left: -90px; bottom: -150px; opacity: .35; }
+  .review > * { position: relative; }
+  .review .label { color: var(--touch); margin-bottom: 14px; }
+  .review h2 { font-weight: 500; font-size: 36px; line-height: 1.05; text-transform: uppercase; }
+  .review p { font-size: 17px; margin-bottom: 20px; }
+  @media (max-width: 480px) { .review, .events { padding: 28px 20px; } }
+
+  /* Соцмережі та контакти */
+  .socials { display: flex; flex-wrap: wrap; gap: 18px; }
+  .social { display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 14px; }
+  .social img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+  .contact { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 52px; border-bottom: 1px solid var(--feel); }
+  .contact b { font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .address { margin-top: 16px; }
+
+  footer { position: relative; overflow: hidden; margin-top: 88px; background: var(--touch); color: var(--feel); }
+  footer .ring { width: 380px; right: -60px; top: -120px; opacity: .18; }
+  footer .wrap { position: relative; padding-top: 48px; padding-bottom: max(32px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 48px; }
+  footer .wrap > img { width: 180px; height: auto; }
+  footer .meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 14px; }
+  footer a { text-decoration: underline; text-underline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<header class="wrap topbar">
+  <img src="img/logo-dark.svg" alt="HVOYA apart hotel · restaurant · spa">
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="uk">укр</button>
+    <button type="button" data-lang="en">eng</button>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <div class="hero-meta label"><span data-t="connected"></span><span class="num">(01)</span></div>
+      <h1 data-t="heroTitle"></h1>
+      <p data-t="heroLead"></p>
+      <div class="actions">
+        <a class="btn btn-listen" data-tel="reception" data-t="callReception"></a>
+        <a class="btn btn-outline" data-link="telegram" data-t="writeUs"></a>
+      </div>
+    </div>
+    <div class="capsules">
+      <div class="capsule capsule-back"><img class="ring" src="img/ring-a-dark.svg" alt="" aria-hidden="true"></div>
+      <div class="capsule capsule-photo"><img id="hero-photo" src="img/hero.webp" alt=""></div>
+    </div>
+  </div>
+
+  <section class="wrap">
+    <div class="head"><div><span class="num">(02)</span><h2 data-t="todayTitle"></h2></div></div>
+    <div class="quick" id="quick"></div>
+  </section>
+
+  <section class="wrap">
+    <div class="head">
+      <div><span class="num">(03)</span><h2 data-t="sensesTitle"></h2></div>
+      <span class="label" data-t="sensesNote"></span>
+    </div>
+    <div class="senses" id="senses"></div>
+  </section>
+
+  <section class="wrap split">
+    <div>
+      <div class="head"><div><span class="num">(04)</span><h2 data-t="scheduleTitle"></h2></div></div>
+      <div id="schedule"></div>
+    </div>
+    <div class="events c-touch">
+      <img class="ring" src="img/ring-b-white.svg" alt="" aria-hidden="true">
+      <div class="events-meta"><span data-t="eventsLabel"></span><span class="num" style="color: inherit">(05)</span></div>
+      <div>
+        <h2 data-t="eventsTitle"></h2>
+        <p data-t="eventsText"></p>
+        <div class="actions">
+          <a class="btn btn-feel" data-link="events" data-t="eventsCta"></a>
+          <a class="btn btn-outline-light" data-tel="restaurant" data-t="tableCta"></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="review c-feel">
+      <img class="ring" src="img/ring-a-dark.svg" alt="" aria-hidden="true">
+      <div>
+        <div class="label"><span class="num" style="color: inherit">(06)</span> <span data-t="reviewLabel"></span></div>
+        <h2 data-t="reviewTitle"></h2>
+      </div>
+      <div>
+        <p data-t="reviewText"></p>
+        <div class="actions">
+          <a class="btn btn-touch" data-link="googleReview" data-t="reviewGoogle"></a>
+          <a class="btn btn-white" data-link="bookingReview" data-t="reviewBooking"></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap split">
+    <div>
+      <div class="head"><div><span class="num">(07)</span><h2 data-t="socialsTitle"></h2></div></div>
+      <div class="socials" id="socials"></div>
+    </div>
+    <div>
+      <div class="head"><div><span class="num">(08)</span><h2 data-t="contactsTitle"></h2></div></div>
+      <div id="contacts"></div>
+      <p class="address label" data-t="address"></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <img class="ring" src="img/ring-a-white.svg" alt="" aria-hidden="true">
+  <div class="wrap">
+    <img src="img/logo-white.svg" alt="HVOYA">
+    <div class="meta">
+      <span><span data-t="footerPlace"></span> · <a data-link="site">hotelhvoya.com</a></span>
+      <span>hvoya</span>
+    </div>
+  </div>
+</footer>
+
+<script src="content.js"></script>
+<script>
+(function () {
+  var C = window.HVOYA;
+
+  // На світлих кольорах (smell, feel) кільця темні, на решті білі.
+  var RING = { smell: "img/ring-a-dark.svg", feel: "img/ring-a-dark.svg" };
+  function ringFor(color) { return RING[color] || "img/ring-a-white.svg"; }
+
+  function hoursOf(key) {
+    for (var i = 0; i < C.hours.length; i++) if (C.hours[i].key === key) return C.hours[i].time;
+    return "";
+  }
+
+  function prettyPhone(p) {
+    // +380977008385 -> +38 097 700 83 85
+    return p.replace(/^\+38(\d{3})(\d{3})(\d{2})(\d{2})$/, "+38 $1 $2 $3 $4");
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function ring(color) {
+    return '<img class="ring" src="' + ringFor(color) + '" alt="" aria-hidden="true">';
+  }
+
+  function render(lang) {
+    var t = C.text[lang] || C.text.uk;
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll("[data-t]").forEach(function (el) {
+      el.textContent = t[el.getAttribute("data-t")] || "";
+    });
+    document.querySelectorAll("[data-link]").forEach(function (el) {
+      el.href = C.links[el.getAttribute("data-link")];
+      el.target = "_blank";
+      el.rel = "noopener";
+    });
+    document.querySelectorAll("[data-tel]").forEach(function (el) {
+      el.href = "tel:" + C.phones[el.getAttribute("data-tel")];
+    });
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      var active = b.getAttribute("data-lang") === lang;
+      var name = b.getAttribute("data-lang") === "uk" ? "укр" : "eng";
+      b.setAttribute("aria-pressed", active);
+      b.textContent = active ? "[ " + name + " ]" : name;
+    });
+    document.getElementById("hero-photo").alt = t.heroPhotoAlt;
+
+    document.getElementById("quick").innerHTML = C.quick.map(function (q) {
+      return '<div class="tile c-' + q.color + '">' + ring(q.color) +
+        "<span>[ " + esc(t[q.key]) + " ]</span><b>" + esc(hoursOf(q.key)) + "</b></div>";
+    }).join("");
+
+    document.getElementById("senses").innerHTML = C.senses.map(function (s) {
+      var x = t.senses[s.id];
+      return '<article class="sense c-' + s.color + '">' +
+        '<img src="' + s.img + '" alt="' + esc(x.alt) + '">' +
+        '<div class="sense-body">' + ring(s.color) +
+          "<small>" + esc(x.sense) + "</small>" +
+          "<h3>" + esc(x.title) + "</h3>" +
+          "<p>" + esc(x.text) + "</p>" +
+          '<span class="note">' + esc(x.note) + "</span>" +
+          '<a href="' + s.link + '" target="_blank" rel="noopener">' + esc(t.more) + "</a>" +
+        "</div>" +
+      "</article>";
+    }).join("");
+
+    document.getElementById("schedule").innerHTML = C.hours.map(function (h) {
+      return '<div class="row"><span>' + esc(t[h.key]) + "</span><b>" + esc(h.time) + "</b></div>";
+    }).join("");
+
+    document.getElementById("socials").innerHTML = C.socials.map(function (s) {
+      return '<a class="social" href="' + s.url + '" target="_blank" rel="noopener">' +
+        '<img src="' + s.tex + '" alt="" aria-hidden="true"><span>[ ' + esc(s.label) + " ]</span></a>";
+    }).join("");
+
+    document.getElementById("contacts").innerHTML = C.contacts.map(function (c) {
+      var p = C.phones[c.phone];
+      return '<a class="contact" href="tel:' + p + '"><span>' + esc(t[c.key]) + "</span><b>" + prettyPhone(p) + "</b></a>";
+    }).join("");
+
+    try { localStorage.setItem("hvoya-lang", lang); } catch (e) {}
+  }
+
+  function initialLang() {
+    var q = /[?&]lang=(uk|en)/.exec(location.search);
+    if (q) return q[1];
+    try {
+      var saved = localStorage.getItem("hvoya-lang");
+      if (saved === "uk" || saved === "en") return saved;
+    } catch (e) {}
+    var nav = (navigator.language || "uk").slice(0, 2);
+    return nav === "uk" || nav === "ru" ? "uk" : "en";
+  }
+
+  document.querySelectorAll(".lang button").forEach(function (b) {
+    b.addEventListener("click", function () { render(b.getAttribute("data-lang")); });
+  });
+
+  render(initialLang());
+})();
+</script>
+</body>
+</html>

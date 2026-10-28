@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HVOYA Wi-Fi</title>
+<!--
+  Splash-сторінка Cisco Web Authentication (режим Passthrough / Consent).
+  Без зовнішніх ресурсів: до авторизації гість не має інтернету.
+  Оформлення за брендбуком HVOYA (strategy_hvoya.pdf), як і лендінг у site/.
+
+  Працює у двох варіантах:
+   • Custom WebAuth bundle (сторінка лежить на контролері) — форма шле POST на /login.html
+     віртуального IP контролера.
+   • External WebAuth (сторінка на зовнішньому сервері з pre-auth ACL) — контролер додає
+     до URL параметр switch_url, і форма шле POST туди.
+  В обох випадках buttonClicked=4 означає «прийняти умови» (passthrough).
+-->
+<style>
+  :root {
+    --smell: #84A98C;
+    --eat: #52796F;
+    --listen: #356469;
+    --touch: #2F3E46;
+    --feel: #CAD2C5;
+    --white: #FFFFFF;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: var(--white);
+    color: var(--touch);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: max(16px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+    position: relative;
+    overflow-x: hidden;
+  }
+  .ring { position: absolute; width: 300px; right: -170px; top: 70px; opacity: .22; pointer-events: none; }
+
+  .topbar { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .topbar img { width: 116px; height: auto; display: block; }
+  .lang { display: flex; gap: 2px; font-size: 15px; }
+  .lang button {
+    font: inherit; min-height: 44px; padding: 0 8px; border: 0; background: none;
+    color: var(--eat); cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] { color: var(--touch); font-weight: 600; }
+
+  main { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; max-width: 440px; margin: 0 auto; padding: 32px 0 24px; }
+  .meta { display: flex; justify-content: space-between; font-size: 15px; color: var(--eat); margin-bottom: 20px; }
+  .num { font-style: italic; }
+  h1 {
+    font-weight: 500; font-size: 46px; line-height: .95; letter-spacing: -.02em;
+    text-transform: uppercase; margin-bottom: 18px;
+  }
+  .lead { font-size: 17px; margin-bottom: 28px; }
+
+  .hours { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 28px; }
+  .hours div { border-radius: 12px; padding: 14px 16px; }
+  .hours span { display: block; font-size: 13px; margin-bottom: 6px; }
+  .hours b { font-size: 21px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .c-eat { background: var(--eat); color: var(--white); }
+  .c-feel { background: var(--feel); color: var(--touch); }
+  .c-listen { background: var(--listen); color: var(--white); }
+  .c-touch { background: var(--touch); color: var(--white); }
+
+  .error {
+    display: none; border: 1px solid var(--touch); border-radius: 12px;
+    padding: 12px 14px; font-size: 15px; margin-bottom: 14px;
+  }
+  .connect {
+    width: 100%; min-height: 56px; border: 0; border-radius: 12px;
+    background: var(--listen); color: var(--white);
+    font: inherit; font-size: 17px; font-weight: 500; cursor: pointer;
+  }
+  .connect:active { background: var(--touch); }
+  .connect[disabled] { opacity: .6; }
+  .terms { font-size: 13px; color: var(--eat); text-align: center; margin-top: 12px; }
+
+  footer { position: relative; display: flex; justify-content: space-between; font-size: 13px; color: var(--eat); border-top: 1px solid var(--feel); padding-top: 14px; }
+</style>
+</head>
+<body>
+  <img class="ring" src="ring.svg" alt="" aria-hidden="true">
+
+  <header class="topbar">
+    <img src="logo.svg" alt="HVOYA apart hotel · restaurant · spa">
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="uk" aria-pressed="true">[ укр ]</button>
+      <button type="button" data-lang="en" aria-pressed="false">eng</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="meta"><span data-t="label">[ гостьовий wi-fi ]</span><span class="num">(01)</span></div>
+    <h1 data-t="title">Вітаємо у хвої</h1>
+    <p class="lead" data-t="lead">щоб підключитися до інтернету, натисніть кнопку нижче. це безкоштовно для всіх гостей готелю.</p>
+
+    <div class="hours">
+      <div class="c-eat"><span data-t="breakfast">[ сніданок ]</span><b>8:00–11:00</b></div>
+      <div class="c-feel"><span data-t="spa">[ спа та басейн ]</span><b>9:00–21:00</b></div>
+      <div class="c-listen"><span data-t="ski">[ лижна кімната ]</span><b>8:00–20:00</b></div>
+      <div class="c-touch"><span data-t="reception">[ рецепція ]</span><b data-t="always">цілодобово</b></div>
+    </div>
+
+    <div class="error" id="error" data-t="error">не вдалося підключитися. спробуйте ще раз або зверніться на рецепцію, ми охоче допоможемо.</div>
+
+    <form id="auth" method="post" action="/login.html">
+      <input type="hidden" name="buttonClicked" value="4">
+      <input type="hidden" name="err_flag" value="0">
+      <input type="hidden" name="err_msg" value="">
+      <input type="hidden" name="info_flag" value="0">
+      <input type="hidden" name="info_msg" value="">
+      <input type="hidden" name="redirect_url" id="redirect_url" value="">
+      <button class="connect" type="submit" id="connect" data-t="connect">підключитися до wi-fi</button>
+    </form>
+    <p class="terms" data-t="terms">натискаючи кнопку, ви погоджуєтеся з правилами користування мережею готелю.</p>
+  </main>
+
+  <footer><span data-t="place">буковель</span><span>hvoya</span></footer>
+
+<script>
+  // Куди відправити гостя після авторизації.
+  var LANDING_URL = "https://wifi.hotelhvoya.com/";
+
+  var T = {
+    en: {
+      label: "[ guest wi-fi ]",
+      title: "Welcome to hvoya",
+      lead: "to get online, tap the button below. it is free for all hotel guests.",
+      breakfast: "[ breakfast ]", spa: "[ spa & pool ]", ski: "[ ski room ]", reception: "[ reception ]",
+      always: "24/7",
+      connect: "connect to wi-fi",
+      terms: "by tapping the button you accept the hotel network terms of use.",
+      error: "could not connect. please try again or contact the reception, we will gladly help.",
+      place: "bukovel"
+    }
+  };
+
+  var nodes = document.querySelectorAll("[data-t]");
+  var uk = {};
+  for (var i = 0; i < nodes.length; i++) uk[nodes[i].getAttribute("data-t")] = nodes[i].textContent;
+  T.uk = uk;
+
+  function setLang(lang) {
+    var dict = T[lang] || T.uk;
+    for (var i = 0; i < nodes.length; i++) nodes[i].textContent = dict[nodes[i].getAttribute("data-t")];
+    document.documentElement.lang = lang;
+    var btns = document.querySelectorAll(".lang button");
+    for (var j = 0; j < btns.length; j++) {
+      var code = btns[j].getAttribute("data-lang");
+      var name = code === "uk" ? "укр" : "eng";
+      var active = code === lang;
+      btns[j].setAttribute("aria-pressed", active);
+      btns[j].textContent = active ? "[ " + name + " ]" : name;
+    }
+    document.getElementById("redirect_url").value = LANDING_URL + "?lang=" + lang;
+  }
+
+  var btns = document.querySelectorAll(".lang button");
+  for (var k = 0; k < btns.length; k++) {
+    btns[k].onclick = function () { setLang(this.getAttribute("data-lang")); };
+  }
+
+  var browserLang = (navigator.language || "uk").slice(0, 2);
+  setLang(browserLang === "uk" || browserLang === "ru" ? "uk" : "en");
+
+  // Параметри, які контролер Cisco додає до URL при External WebAuth.
+  function param(name) {
+    var m = new RegExp("[?&]" + name + "=([^&]*)").exec(location.search);
+    return m ? decodeURIComponent(m[1].replace(/\+/g, " ")) : null;
+  }
+  var switchUrl = param("switch_url");
+  if (switchUrl) document.getElementById("auth").action = switchUrl;
+
+  // statusCode != 1 або err_flag=1 означають помилку попередньої спроби.
+  var statusCode = param("statusCode");
+  if ((statusCode && statusCode !== "1") || param("err_flag") === "1") {
+    document.getElementById("error").style.display = "block";
+  }
+
+  // Локальний перегляд (python -m http.server з кореня проєкту): контролера немає,
+  // тому кнопка одразу веде на лендінг із сусідньої папки site/.
+  var isPreview = !switchUrl && location.pathname.indexOf("/portal/") !== -1;
+
+  document.getElementById("auth").onsubmit = function () {
+    if (isPreview) {
+      location.href = "../site/index.html?lang=" + document.documentElement.lang;
+      return false;
+    }
+    document.getElementById("connect").disabled = true;
+  };
+</script>
+</body>
+</html>
