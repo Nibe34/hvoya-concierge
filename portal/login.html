@@ -100,16 +100,16 @@
   <main>
     <div class="meta"><span data-t="label">[ гостьовий wi-fi ]</span><span class="num">(01)</span></div>
     <h1 data-t="title">Вітаємо у хвої</h1>
-    <p class="lead" data-t="lead">щоб підключитися до інтернету, натисніть кнопку нижче. це безкоштовно для всіх гостей готелю.</p>
+    <p class="lead" data-t="lead">щоб підключитися до інтернету, натисни кнопку нижче. це безкоштовно для всіх гостей готелю.</p>
 
     <div class="hours">
       <div class="c-eat"><span data-t="breakfast">[ сніданок ]</span><b>8:00–11:00</b></div>
-      <div class="c-feel"><span data-t="spa">[ спа та басейн ]</span><b>9:00–21:00</b></div>
-      <div class="c-listen"><span data-t="ski">[ лижна кімната ]</span><b>8:00–20:00</b></div>
+      <div class="c-feel"><span data-t="spa">[ спа та басейн ]</span><b>9:00–01:00</b></div>
+      <div class="c-listen"><span data-t="kids">[ дитяча кімната ]</span><b>9:00–00:00</b></div>
       <div class="c-touch"><span data-t="reception">[ рецепція ]</span><b data-t="always">цілодобово</b></div>
     </div>
 
-    <div class="error" id="error" data-t="error">не вдалося підключитися. спробуйте ще раз або зверніться на рецепцію, ми охоче допоможемо.</div>
+    <div class="error" id="error" data-t="error">не вдалося підключитися. спробуй ще раз або звернися на рецепцію, ми охоче допоможемо.</div>
 
     <form id="auth" method="post" action="/login.html">
       <input type="hidden" name="buttonClicked" value="4">
@@ -120,7 +120,7 @@
       <input type="hidden" name="redirect_url" id="redirect_url" value="">
       <button class="connect" type="submit" id="connect" data-t="connect">підключитися до wi-fi</button>
     </form>
-    <p class="terms" data-t="terms">натискаючи кнопку, ви погоджуєтеся з правилами користування мережею готелю.</p>
+    <p class="terms" data-t="terms">натискаючи кнопку, ти погоджуєшся з правилами користування мережею готелю.</p>
   </main>
 
   <footer><span data-t="place">буковель</span><span>hvoya</span></footer>
@@ -134,7 +134,7 @@
       label: "[ guest wi-fi ]",
       title: "Welcome to hvoya",
       lead: "to get online, tap the button below. it is free for all hotel guests.",
-      breakfast: "[ breakfast ]", spa: "[ spa & pool ]", ski: "[ ski room ]", reception: "[ reception ]",
+      breakfast: "[ breakfast ]", spa: "[ spa & pool ]", kids: "[ kids room ]", reception: "[ reception ]",
       always: "24/7",
       connect: "connect to wi-fi",
       terms: "by tapping the button you accept the hotel network terms of use.",
